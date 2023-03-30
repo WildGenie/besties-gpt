@@ -1,7 +1,7 @@
 # trascribe audio 
 import time,os
 import logging
-import whisper 
+import whisper
 import numpy as np
 import pandas as pd
 
@@ -16,12 +16,12 @@ for ix in new_ep.index:
 
     # get data 
     ep_number=int(new_ep.loc[ix,'number'])
-    print("EPISODE: %s"%ep_number)
+    print(f"EPISODE: {ep_number}")
     logging.info("EPISODE: %s", ep_number)
 
-    # get audio 
-    audio_file_path='audio/%s.m4a'%str(ep_number)
-    out_file_path='audio_transcription/0%s.txt'%str(ep_number)
+    # get audio
+    audio_file_path = f'audio/{ep_number}.m4a'
+    out_file_path = f'audio_transcription/0{ep_number}.txt'
 
     print(f"Processing file: {audio_file_path}")
     logging.info(f"Processing file: {audio_file_path}")
@@ -30,12 +30,20 @@ for ix in new_ep.index:
     # load Whisper model and transcribe audio file
     model = whisper.load_model("medium")
     result = model.transcribe(audio_file_path)
-    
+
     # write
     with open(out_file_path, "w") as f:
         for seg in result['segments']:
             ts = np.round(seg['start'],1)
-            f.write(new_ep.loc[ix,'link'] + "&t=%ss"%ts + "\t" + str(ts) + "\t" + seg['text'] + "\n")
+            f.write(
+                new_ep.loc[ix, 'link']
+                + f"&t={ts}s"
+                + "\t"
+                + str(ts)
+                + "\t"
+                + seg['text']
+                + "\n"
+            )
 
     end_time = time.time()
     time_diff = end_time - start_time
